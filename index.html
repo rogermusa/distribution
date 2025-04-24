@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospitalist Redistribution Tool</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Include client-side libraries for reading files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/papaparse/5.3.0/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Hospitalist Redistribution Tool</h1>
+
+        <section id="input-section">
+            <h2>Input Files</h2>
+            <p class="info">Please upload the required input files.</p>
+            <div class="form-group">
+                <label for="hospitalist-data-file">Hospitalist Data (hospitalist_data.csv):</label>
+                <input type="file" id="hospitalist-data-file" accept=".csv">
+            </div>
+            <div class="form-group">
+                <label for="monday-prep-file">Monday Prep (monday_prep.csv):</label>
+                <input type="file" id="monday-prep-file" accept=".csv">
+            </div>
+            <div class="form-group">
+                <label for="non-ohip-file">Non-OHIP Data (Non_OHIP_List.xlsx):</label>
+                <input type="file" id="non-ohip-file" accept=".xlsx">
+            </div>
+            <div class="form-group">
+                <label for="conversion-file">MRP Conversion (MRP_Conversion.xlsx):</label>
+                <input type="file" id="conversion-file" accept=".xlsx">
+            </div>
+        </section>
+
+        <section id="parameters-section">
+            <h2>Distribution Parameters</h2>
+            <p class="info">Enter parameters for this week's distribution.</p>
+             <div class="form-group">
+                <label for="new-admissions">Number of New Admissions:</label>
+                <input type="number" id="new-admissions" value="0" min="0">
+            </div>
+            <div class="form-group">
+                <label for="mrps-this-week">This Week's MRPs (Format: NAME,NAME-CAP):</label>
+                <input type="text" id="mrps-this-week" placeholder="e.g., CHUGA,WOOMIN-8,MUSRO">
+                <p class="hint">Enter MRP codes separated by commas. Use - followed by a number for hard caps (e.g., WOOMIN-8).</p>
+            </div>
+             <div class="form-group">
+                <label for="forced-patient-transfers">Forced Patient Transfers (Format: MRN->MRP;...):</label>
+                <input type="text" id="forced-patient-transfers" placeholder="e.g., E123->CHUGA;E456->WOOMIN">
+                 <p class="hint">Assign specific patients by MRN to an MRP. Separate multiple assignments with semicolons.</p>
+            </div>
+             <div class="form-group">
+                <label for="forced-mrp-transfers">Forced MRP Transfers (Format: OLD->NEW;...):</label>
+                <input type="text" id="forced-mrp-transfers" placeholder="e.g., OLDMRP->NEWMRP;ANOTHER->MUSRO/DANKAR">
+                 <p class="hint">Transfer patients from an OLD MRP to a NEW MRP (or NEW/NEW). Separate multiple transfers with semicolons.</p>
+            </div>
+        </section>
+
+        <section id="actions-section">
+            <button id="process-button">Process Distribution</button>
+             <p id="processing-status" class="status-message"></p>
+        </section>
+
+         <section id="output-section" class="hidden">
+            <h2>Distribution Results</h2>
+            <p class="info">Review the summary below. If adjustments are needed, you can make them manually in the table below and re-process.</p>
+
+             <div id="summary-display">
+                 <!-- Summary table or text will be displayed here -->
+             </div>
+
+             <div id="patient-list-display">
+                 <!-- Interactive patient list table will be displayed here -->
+             </div>
+
+            <button id="generate-reports-button">Generate Final Reports (PDF/Excel)</button>
+             <p id="report-status" class="status-message"></p>
+        </section>
+
+         <section id="download-section" class="hidden">
+            <h2>Download Files</h2>
+            <p class="info">Your generated files are ready for download.</p>
+            <ul id="download-links">
+                 <!-- Download links will appear here -->
+            </ul>
+        </section>
+
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
