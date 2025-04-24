@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospitalist Redistribution Tool</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Include client-side libraries for reading files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/papaparse/5.3.0/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <!-- Font Awesome for icons (optional but adds flair) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-hospital-user"></i> Hospitalist Redistribution Tool</h1>
+            <p class="intro-text">Efficiently manage patient distribution among hospitalists based on flexible criteria.</p>
+        </header>
+
+        <section id="input-section" class="card">
+            <h2><i class="fas fa-file-upload"></i> Input Files</h2>
+            <p class="info">Please upload the required input files.</p>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="hospitalist-data-file"><i class="fas fa-file-csv"></i> Hospitalist Data (hospitalist_data.csv) <span class="required">*</span>:</label>
+                    <input type="file" id="hospitalist-data-file" accept=".csv">
+                </div>
+                <div class="form-group">
+                    <label for="monday-prep-file"><i class="fas fa-file-csv"></i> Monday Prep (monday_prep.csv):</label>
+                    <input type="file" id="monday-prep-file" accept=".csv">
+                </div>
+                <div class="form-group">
+                    <label for="non-ohip-file"><i class="fas fa-file-excel"></i> Non-OHIP Data (Non_OHIP_List.xlsx):</label>
+                    <input type="file" id="non-ohip-file" accept=".xlsx">
+                </div>
+                <div class="form-group">
+                    <label for="conversion-file"><i class="fas fa-file-excel"></i> MRP Conversion (MRP_Conversion.xlsx):</label>
+                    <input type="file" id="conversion-file" accept=".xlsx">
+                </div>
+            </div>
+        </section>
+
+        <section id="parameters-section" class="card">
+            <h2><i class="fas fa-sliders-h"></i> Distribution Parameters</h2>
+            <p class="info">Enter parameters for this week's distribution.</p>
+             <div class="form-grid">
+                 <div class="form-group">
+                    <label for="new-admissions"><i class="fas fa-plus-circle"></i> Number of New Admissions:</label>
+                    <input type="number" id="new-admissions" value="0" min="0">
+                </div>
+                <div class="form-group full-width">
+                    <label for="mrps-this-week"><i class="fas fa-user-md"></i> This Week's MRPs <span class="required">*</span>:</label>
+                    <input type="text" id="mrps-this-week" placeholder="e.g., CHUGA, GOTSI-16, MUSRO">
+                    <p class="hint"><i class="fas fa-info-circle"></i> Enter MRP codes separated by commas. Use <code>-</code> followed by a number for hard caps (e.g., <code>GOTSI-16</code>).</p>
+                     <p class="hint"><i class="fas fa-users"></i> Potential MRPs: ALIRIZ, BAHMAR, BASMER, BUKSYE, BUTMICH, BUTSH, CHUGA, COOAN, CRIMI, DANKAR, DUZAN, FONGJE, GILNIK, GOTSI, GUPTSHR, HALKE, KHASALA, LAKOKA, LAZDI, LEEJA, LENMI, LOCJOD, MANGEO, MASCO, MOHNAS, MOKMA, MUSRO, NAMSI, NAWNI, NIUJI, PARKA, PERDER, ROZMI, SAGJA, SAKMOH, SARSI, SHAHES, SHOSHE, SOHCH, SUKNA, VAKHNI, WALMU, YEEAN</p>
+                </div>
+                 <div class="form-group full-width">
+                    <label for="forced-patient-transfers"><i class="fas fa-exchange-alt"></i> Forced Patient Transfers:</label>
+                    <input type="text" id="forced-patient-transfers" placeholder="e.g., E001234567->CHUGA; E003456789->GOTSI">
+                     <p class="hint"><i class="fas fa-info-circle"></i> Assign specific patients by MRN to an MRP. Format: <code>MRN-&gt;MRP</code>. Separate multiple assignments with semicolons (<code>;</code>).</p>
+                </div>
+                 <div class="form-group full-width">
+                    <label for="forced-mrp-transfers"><i class="fas fa-exchange-alt"></i> Forced MRP Transfers:</label>
+                    <input type="text" id="forced-mrp-transfers" placeholder="e.g., HALKE->YEEAN; NIUJI->MUSRO/DANKAR">
+                     <p class="hint"><i class="fas fa-info-circle"></i> Transfer patients from an OLD MRP to a NEW MRP (or NEW/NEW). Format: <code>OLD-&gt;NEW</code> or <code>OLD-&gt;NEW1/NEW2</code>. Separate multiple transfers with semicolons (<code>;</code>).</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="actions-section">
+            <button id="process-button"><i class="fas fa-cogs"></i> Process Distribution</button>
+             <p id="processing-status" class="status-message"></p>
+        </section>
+
+         <section id="output-section" class="hidden card">
+            <h2><i class="fas fa-clipboard-list"></i> Distribution Results</h2>
+            <p class="info">Review the summary below. You can make manual adjustments directly in the "New_MRP" column of the patient list below before generating final reports.</p>
+
+             <div id="summary-display" class="result-section">
+                 <h3><i class="fas fa-chart-bar"></i> Summary</h3>
+                 <!-- Summary table or text will be displayed here -->
+             </div>
+
+             <div id="patient-list-display" class="result-section">
+                 <h3><i class="fas fa-users"></i> Patient List</h3>
+                 <p class="hint"><i class="fas fa-edit"></i> Click on a cell in the "New_MRP" column to edit the assignment manually.</p>
+                 <!-- Interactive patient list table will be displayed here -->
+             </div>
+
+            <button id="generate-reports-button"><i class="fas fa-file-export"></i> Generate Final Reports (PDF/Excel)</button>
+             <p id="report-status" class="status-message"></p>
+        </section>
+
+         <section id="download-section" class="hidden card">
+            <h2><i class="fas fa-download"></i> Download Files</h2>
+            <p class="info">Your generated files are ready for download.</p>
+            <ul id="download-links">
+                 <!-- Download links will appear here -->
+            </ul>
+        </section>
+
+        <footer>
+            <p>&copy; 2023 Hospitalist Tool. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
